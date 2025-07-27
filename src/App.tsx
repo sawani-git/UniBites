@@ -3,10 +3,21 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import { DataProvider } from './context/DataContext'
 import Profile from './pages/Profile'
 import CanteenMenu from './pages/CanteenMenue'
-import { User, ShoppingCart, Home, UserIcon } from 'lucide-react'
+import MealPlanner from './pages/MealPlanner'
+import BudgetTracker from './pages/BudgetTracker'
+import Dashboard from './pages/Dasboard'
+import { 
+  User, 
+  ShoppingCart, 
+  Home, 
+  UserIcon, 
+  Calendar, 
+  PieChart, 
+  Target 
+} from 'lucide-react'
 
 function AppContent() {
-  const [currentPage, setCurrentPage] = useState('menu')
+  const [currentPage, setCurrentPage] = useState('dashboard')
   const { login } = useAuth()
 
   useEffect(() => {
@@ -15,7 +26,7 @@ function AppContent() {
       id: '1',
       name: 'John Doe',
       email: 'john.doe@university.edu',
-      budget: 50,
+      budget: 150,
       university: 'Sample University',
       dietaryPreferences: ['vegetarian']
     })
@@ -23,14 +34,28 @@ function AppContent() {
 
   const renderPage = () => {
     switch (currentPage) {
-      case 'profile':
-        return <Profile />
+      case 'dashboard':
+        return <Dashboard />
       case 'menu':
         return <CanteenMenu />
+      case 'planner':
+        return <MealPlanner />
+      case 'budget':
+        return <BudgetTracker />
+      case 'profile':
+        return <Profile />
       default:
-        return <CanteenMenu />
+        return <Dashboard />
     }
   }
+
+  const navigationItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: Home },
+    { id: 'menu', label: 'Menu', icon: ShoppingCart },
+    { id: 'planner', label: 'Meal Planner', icon: Calendar },
+    { id: 'budget', label: 'Budget', icon: PieChart },
+    { id: 'profile', label: 'Profile', icon: UserIcon },
+  ]
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -40,30 +65,26 @@ function AppContent() {
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <h1 className="text-2xl font-bold text-orange-600">UniBites</h1>
+              <span className="ml-2 text-sm text-gray-500">Smart Campus Dining</span>
             </div>
-            <div className="flex space-x-8">
-              <button
-                onClick={() => setCurrentPage('menu')}
-                className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium ${
-                  currentPage === 'menu'
-                    ? 'bg-orange-100 text-orange-700'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <ShoppingCart className="w-4 h-4" />
-                <span>Menu</span>
-              </button>
-              <button
-                onClick={() => setCurrentPage('profile')}
-                className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium ${
-                  currentPage === 'profile'
-                    ? 'bg-orange-100 text-orange-700'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <UserIcon className="w-4 h-4" />
-                <span>Profile</span>
-              </button>
+            <div className="flex space-x-4">
+              {navigationItems.map(item => {
+                const Icon = item.icon
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setCurrentPage(item.id)}
+                    className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                      currentPage === item.id
+                        ? 'bg-orange-100 text-orange-700'
+                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span className="hidden sm:inline">{item.label}</span>
+                  </button>
+                )
+              })}
             </div>
           </div>
         </div>
