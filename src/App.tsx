@@ -6,6 +6,8 @@ import CanteenMenu from './pages/CanteenMenue'
 import MealPlanner from './pages/MealPlanner'
 import BudgetTracker from './pages/BudgetTracker'
 import Dashboard from './pages/Dasboard'
+import Welcome from './pages/Welcome'
+import { Logo, LoadingLogo, FloatingFoodElements } from './components/Logo'
 import { 
   User, 
   ShoppingCart, 
@@ -17,7 +19,8 @@ import {
 } from 'lucide-react'
 
 function AppContent() {
-  const [currentPage, setCurrentPage] = useState('dashboard')
+  const [currentPage, setCurrentPage] = useState('welcome') // Start with welcome page
+  const [isLoading, setIsLoading] = useState(false) // Set to false to skip loading, true to show splash
   const { login } = useAuth()
 
   useEffect(() => {
@@ -30,10 +33,26 @@ function AppContent() {
       university: 'Sample University',
       dietaryPreferences: ['vegetarian']
     })
-  }, [login])
+    
+    // Only show loading screen if enabled
+    if (isLoading) {
+      const timer = setTimeout(() => {
+        setIsLoading(false)
+      }, 800) // Reduced to 0.8 seconds
+      
+      return () => clearTimeout(timer)
+    }
+  }, [login, isLoading])
+
+  // Show loading screen
+  if (isLoading) {
+    return <LoadingLogo onSkip={() => setIsLoading(false)} />
+  }
 
   const renderPage = () => {
     switch (currentPage) {
+      case 'welcome':
+        return <Welcome onGetStarted={() => setCurrentPage('dashboard')} />
       case 'dashboard':
         return <Dashboard />
       case 'menu':
@@ -45,7 +64,7 @@ function AppContent() {
       case 'profile':
         return <Profile />
       default:
-        return <Dashboard />
+        return <Welcome onGetStarted={() => setCurrentPage('dashboard')} />
     }
   }
 
@@ -57,27 +76,38 @@ function AppContent() {
     { id: 'profile', label: 'Profile', icon: UserIcon },
   ]
 
+  // Show welcome page without navigation
+  if (currentPage === 'welcome') {
+    return renderPage()
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navigation */}
-      <nav className="bg-white shadow-sm border-b border-gray-200">
+      <nav className="bg-white shadow-lg border-b border-gray-200 sticky top-0 z-50 backdrop-blur-sm bg-white/95">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-orange-600">UniBites</h1>
-              <span className="ml-2 text-sm text-gray-500">Smart Campus Dining</span>
+            <div className="flex items-center space-x-4">
+              <Logo size="md" animated={true} showText={true} />
             </div>
-            <div className="flex space-x-4">
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setIsLoading(true)}
+                className="text-xs text-gray-500 hover:text-orange-600 transition-colors px-2 py-1 rounded hover:bg-orange-50"
+                title="Show logo animation"
+              >
+                ✨
+              </button>
               {navigationItems.map(item => {
                 const Icon = item.icon
                 return (
                   <button
                     key={item.id}
                     onClick={() => setCurrentPage(item.id)}
-                    className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
                       currentPage === item.id
-                        ? 'bg-orange-100 text-orange-700'
-                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                        ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg transform scale-105'
+                        : 'text-gray-600 hover:text-orange-600 hover:bg-orange-50 hover:scale-105'
                     }`}
                   >
                     <Icon className="w-4 h-4" />
