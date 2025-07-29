@@ -5,7 +5,8 @@ import Profile from './pages/Profile'
 import CanteenMenu from './pages/CanteenMenue'
 import MealPlanner from './pages/MealPlanner'
 import BudgetTracker from './pages/BudgetTracker'
-import Dashboard from './pages/Dasboard'
+import Dashboard from './pages/Dashboard'
+import Login from './pages/Login'
 import Welcome from './pages/Welcome'
 import { Logo, LoadingLogo, FloatingFoodElements } from './components/Logo'
 import { 
@@ -20,33 +21,26 @@ import {
 
 function AppContent() {
   const [currentPage, setCurrentPage] = useState('welcome') // Start with welcome page
-  const [isLoading, setIsLoading] = useState(false) // Set to false to skip loading, true to show splash
-  const { login } = useAuth()
+  const [isLoading, setIsLoading] = useState(false)
+  const { user, isAuthenticated, logout } = useAuth()
 
   useEffect(() => {
-    // Auto-login with sample user
-    login({
-      id: '1',
-      name: 'John Doe',
-      email: 'john.doe@university.edu',
-      budget: 150,
-      university: 'Sample University',
-      dietaryPreferences: ['vegetarian']
-    })
-    
-    // Only show loading screen if enabled
     if (isLoading) {
       const timer = setTimeout(() => {
         setIsLoading(false)
-      }, 800) // Reduced to 0.8 seconds
-      
+      }, 800)
       return () => clearTimeout(timer)
     }
-  }, [login, isLoading])
+  }, [isLoading])
 
   // Show loading screen
   if (isLoading) {
     return <LoadingLogo onSkip={() => setIsLoading(false)} />
+  }
+
+  // Show login page if not authenticated
+  if (!isAuthenticated) {
+    return <Login onLogin={() => setCurrentPage('dashboard')} />
   }
 
   const renderPage = () => {
@@ -115,6 +109,16 @@ function AppContent() {
                   </button>
                 )
               })}
+              {/* Sign Out Button */}
+              <button
+                onClick={() => {
+                  logout();
+                  setCurrentPage('welcome');
+                }}
+                className="ml-2 px-4 py-2 rounded-xl text-sm font-medium bg-red-100 text-red-600 hover:bg-red-200 transition-all duration-200"
+              >
+                Sign Out
+              </button>
             </div>
           </div>
         </div>

@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Mail, Lock, Utensils } from 'lucide-react';
 
-export default function Login() {
+
+
+export default function Login({ onLogin }: { onLogin?: () => void }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -20,6 +22,7 @@ export default function Login() {
         university: 'Sample University',
         dietaryPreferences: ['vegetarian']
       });
+      if (onLogin) onLogin();
     } catch (error) {
       console.error('Login failed:', error);
     } finally {
