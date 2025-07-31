@@ -20,7 +20,7 @@ import {
 } from 'lucide-react'
 
 function AppContent() {
-  const [currentPage, setCurrentPage] = useState('welcome') // Start with welcome page
+  const [currentPage, setCurrentPage] = useState('welcome') // 'welcome', 'login', or main pages
   const [isLoading, setIsLoading] = useState(false)
   const { user, isAuthenticated, logout } = useAuth()
 
@@ -38,15 +38,18 @@ function AppContent() {
     return <LoadingLogo onSkip={() => setIsLoading(false)} />
   }
 
-  // Show login page if not authenticated
+  // Landing page flow
   if (!isAuthenticated) {
-    return <Login onLogin={() => setCurrentPage('dashboard')} />
+    if (currentPage === 'welcome') {
+      return <Welcome onGetStarted={() => setCurrentPage('login')} />
+    }
+    if (currentPage === 'login') {
+      return <Login onLogin={() => setCurrentPage('dashboard')} />
+    }
   }
 
   const renderPage = () => {
     switch (currentPage) {
-      case 'welcome':
-        return <Welcome onGetStarted={() => setCurrentPage('dashboard')} />
       case 'dashboard':
         return <Dashboard />
       case 'menu':
@@ -58,7 +61,7 @@ function AppContent() {
       case 'profile':
         return <Profile />
       default:
-        return <Welcome onGetStarted={() => setCurrentPage('dashboard')} />
+        return <Dashboard />
     }
   }
 
@@ -70,10 +73,8 @@ function AppContent() {
     { id: 'profile', label: 'Profile', icon: UserIcon },
   ]
 
-  // Show welcome page without navigation
-  if (currentPage === 'welcome') {
-    return renderPage()
-  }
+  // Only show navigation and main app if authenticated
+  if (!isAuthenticated) return null;
 
   return (
     <div className="min-h-screen bg-gray-50">

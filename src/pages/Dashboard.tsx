@@ -16,6 +16,11 @@ import {
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
+  // After logout, redirect to landing page
+  const handleLogout = () => {
+    logout();
+    window.location.reload(); // force AppContent to re-mount and show landing
+  };
   const { meals, orders, budgetTransactions } = useData();
 
   // Dummy data for demonstration
@@ -36,7 +41,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
       <div className="flex justify-end mb-4">
         <button
-          onClick={logout}
+          onClick={handleLogout}
           className="px-4 py-2 rounded-xl text-sm font-medium bg-red-100 text-red-600 hover:bg-red-200 transition-all duration-200"
         >
           Sign Out
