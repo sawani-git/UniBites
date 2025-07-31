@@ -21,6 +21,14 @@ export default function CanteenMenu() {
   const [selectedCanteen, setSelectedCanteen] = useState('all');
   const [cart, setCart] = useState<{[key: string]: number}>({});
   const [showCart, setShowCart] = useState(false);
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('Credit Card');
+  const [showToast, setShowToast] = useState(false);
+  const [cardDetails, setCardDetails] = useState({
+    number: '',
+    expiry: '',
+    cvv: ''
+  });
 
   const categories = ['all', 'Main Course', 'Vegetarian', 'Fast Food', 'Salads', 'Asian', 'Breakfast'];
   const canteens = ['all', 'Central Canteen', 'Garden Cafe', 'Quick Bites', 'International Kitchen', 'Fresh Corner'];
@@ -63,7 +71,7 @@ export default function CanteenMenu() {
     return Object.values(cart).reduce((total, quantity) => total + (quantity as number), 0);
   };
 
-  const handleCheckout = () => {
+  const handlePlaceOrder = () => {
     Object.entries(cart).forEach(([mealId, quantity]) => {
       const meal = meals.find(m => m.id === mealId);
       if (meal) {
@@ -72,7 +80,9 @@ export default function CanteenMenu() {
     });
     setCart({});
     setShowCart(false);
-    alert('Order placed successfully!');
+    setShowCheckout(false);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 2000);
   };
 
   const getDietaryIcon = (dietary: string) => {
@@ -272,6 +282,11 @@ export default function CanteenMenu() {
       </div>
 
       {/* Cart Modal */}
+      {showToast && (
+        <div className="fixed top-6 right-6 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in">
+          Order placed successfully!
+        </div>
+      )}
       {showCart && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl max-w-md w-full max-h-[80vh] overflow-hidden">
@@ -341,11 +356,81 @@ export default function CanteenMenu() {
                   </span>
                 </div>
                 <button
-                  onClick={handleCheckout}
+                  onClick={() => setShowCheckout(true)}
                   className="w-full bg-orange-600 text-white py-3 rounded-lg font-medium hover:bg-orange-700 transition-colors"
                 >
                   Place Order
                 </button>
+              </div>
+            )}
+            {/* Checkout Modal */}
+            {showCheckout && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
+                <div className="bg-white rounded-xl shadow-lg p-8 max-w-sm w-full">
+                  <h4 className="text-lg font-semibold mb-4">Confirm Your Order</h4>
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-gray-700">Total:</span>
+                      <span className="text-xl font-bold text-orange-600">${getCartTotal().toFixed(2)}</span>
+                    </div>
+                    <div className="mb-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
+                      <select
+                        value={paymentMethod}
+                        onChange={e => setPaymentMethod(e.target.value)}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500"
+                      >
+                        <option>Credit Card</option>
+                        <option>PayPal</option>
+                        <option>Campus Wallet</option>
+                      </select>
+                    </div>
+                    {paymentMethod === 'Credit Card' && (
+                      <div className="space-y-3 mt-4">
+                        <input
+                          type="text"
+                          placeholder="Card Number"
+                          value={cardDetails.number}
+                          onChange={e => setCardDetails(cd => ({ ...cd, number: e.target.value }))}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500"
+                          maxLength={19}
+                        />
+                        <div className="flex space-x-2">
+                          <input
+                            type="text"
+                            placeholder="MM/YY"
+                            value={cardDetails.expiry}
+                            onChange={e => setCardDetails(cd => ({ ...cd, expiry: e.target.value }))}
+                            className="w-1/2 border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500"
+                            maxLength={5}
+                          />
+                          <input
+                            type="text"
+                            placeholder="CVV"
+                            value={cardDetails.cvv}
+                            onChange={e => setCardDetails(cd => ({ ...cd, cvv: e.target.value }))}
+                            className="w-1/2 border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-orange-500"
+                            maxLength={4}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex justify-end space-x-3">
+                    <button
+                      onClick={() => setShowCheckout(false)}
+                      className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handlePlaceOrder}
+                      className="px-4 py-2 rounded-lg bg-orange-600 text-white hover:bg-orange-700"
+                    >
+                      Confirm & Pay
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
           </div>

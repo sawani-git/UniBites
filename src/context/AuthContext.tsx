@@ -7,6 +7,7 @@ interface User {
   budget?: number;
   university?: string;
   dietaryPreferences?: string[];
+  avatar?: string;
 }
 
 interface AuthContextType {
